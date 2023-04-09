@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Protocol Checker Website</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.ethers.io/lib/ethers-5.4.umd.min.js"></script>
+</head>
+<body>
+  <h1>Protocol Checker Website</h1>
+  <p>Enter an Ethereum address to check if it has interacted with a protocol:</p>
+  <input type="text" id="address">
+  <br><br>
+  <button onclick="checkProtocols()">Check Protocols</button>
+  <br><br>
+  <table id="result">
+    <thead>
+      <tr>
+        <th>Protocol</th>
+        <th>Has Interacted?</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <script>
+    async function checkProtocols() {
+      // Set up the provider and contract object
+      const provider = new ethers.providers.Web3Provider(web3.currentProvider);
+      const contractAddress = '0xFF939a6B5Af30C4F4B528e174C0397e70d7957a3';
+      const abi = [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "protocol",
+              "type": "address"
+            }
+          ],
+          "name": "hasInteractedWithProtocol",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ];
+      const contract = new ethers.Contract(contractAddress, abi, provider);
+
+      // Get the address to check from the input field
+      const address = document.getElementById('address').value;
+
+      // Check if the address has interacted with each protocol and build the table
+      const protocols = [
+        { name: 'Protocol A', address: '0x2c0102aD3e02d978211Cc2B5d220e5B5344597Fe' },
+        { name: 'Protocol B', address: 'YOUR_PROTOCOL_B_ADDRESS_HERE' },
+        { name: 'Protocol C', address: 'YOUR_PROTOCOL_C_ADDRESS_HERE' },
+        // Add additional protocols here
+      ];
+      const tableBody = document.querySelector('#result tbody');
+      tableBody.innerHTML = '';
+      for (let i = 0; i < protocols.length; i++) {
+        const protocol = protocols[i];
+        const hasInteracted = await contract.hasInteractedWithProtocol(address, protocol.address);
+        const row = document.createElement('tr');
+        const nameCell = document.createElement('td');
+        nameCell.innerText = protocol.name;
+        const resultCell = document.createElement('td');
+        resultCell.innerText = hasInteracted ? 'Yes' : 'No';
+        row.appendChild(nameCell);
+        row.appendChild(resultCell);
+        tableBody.appendChild(row);
+      }
+    }
+  </script>
+</body>
+</html>
